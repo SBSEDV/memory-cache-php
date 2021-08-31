@@ -2,7 +2,7 @@
     "name": "sbsedv/memory-cache",
     "type": "library",
     "description": "In-Memory Psr-6 cache implementation.",
-    "license": "proprietary",
+    "license": "MIT",
     "homepage": "https://github.com/SBSEDV/memory-cache-php",
     "authors": [
         {
