@@ -1,0 +1,36 @@
+{
+    "name": "sbsedv/memory-cache",
+    "type": "library",
+    "description": "In-Memory Psr-6 cache implementation.",
+    "license": "proprietary",
+    "homepage": "https://github.com/SBSEDV/memory-cache-php",
+    "authors": [
+        {
+            "name": "Daniel Burger",
+            "homepage": "https://github.com/danielburger1337"
+        }
+    ],
+    "keywords": [
+        "cache",
+        "psr6",
+        "memory cache"
+    ],
+    "require": {
+        "php": ">=8.0",
+        "psr/cache": "^1.0.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "friendsofphp/php-cs-fixer": "^3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "SBSEDV\\Component\\Cache\\InMemory\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SBSEDV\\Component\\Cache\\InMemory\\Tests\\": "Tests/"
+        }
+    }
+}
