@@ -2,6 +2,7 @@
 
 namespace SBSEDV\Component\Cache\InMemory;
 
+use ArrayIterator;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
@@ -16,17 +17,20 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function getItem($key)
+    public function getItem(string $key): CacheItemInterface
     {
-        return current($this->getItems([$key]));
+        /** @var ArrayIterator $items */
+        $items = $this->getItems([$key]);
+
+        return $items->current();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getItems(array $keys = [])
+    public function getItems(array $keys = []): iterable
     {
-        $items = [];
+        $items = new ArrayIterator();
 
         foreach ($keys as $key) {
             $items[$key] = $this->hasItem($key) ? clone $this->items[$key] : new Item($key);
@@ -38,7 +42,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function hasItem($key)
+    public function hasItem(string $key): bool
     {
         $this->assertKeyIsValid($key);
 
@@ -48,7 +52,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function clear()
+    public function clear(): bool
     {
         $this->items = [];
         $this->deferredItems = [];
@@ -59,7 +63,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteItem($key)
+    public function deleteItem(string $key): bool
     {
         return $this->deleteItems([$key]);
     }
@@ -67,7 +71,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteItems(array $keys)
+    public function deleteItems(array $keys): bool
     {
         array_walk($keys, [$this, 'assertKeyIsValid']);
 
@@ -81,7 +85,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function save(CacheItemInterface $item)
+    public function save(CacheItemInterface $item): bool
     {
         $this->items[$item->getKey()] = $item;
 
@@ -91,7 +95,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function saveDeferred(CacheItemInterface $item)
+    public function saveDeferred(CacheItemInterface $item): bool
     {
         $this->deferredItems[$item->getKey()] = $item;
 
@@ -101,7 +105,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function commit()
+    public function commit(): bool
     {
         foreach ($this->deferredItems as $item) {
             $this->save($item);
@@ -117,11 +121,11 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
      *
      * @throws InvalidArgumentException If the key is invalid.
      */
-    private function assertKeyIsValid($key)
+    private function assertKeyIsValid(string $key)
     {
         $invalidCharacters = '{}()/\\\\@:';
 
-        if (!is_string($key) || preg_match("#[$invalidCharacters]#", $key)) {
+        if (preg_match("#[$invalidCharacters]#", $key)) {
             $message = sprintf('The cache item key is not valid: %s', var_export($key, true));
             throw new InvalidArgumentException($message);
         }

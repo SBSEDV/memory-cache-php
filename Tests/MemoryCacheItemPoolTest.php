@@ -66,7 +66,7 @@ class MemoryCacheItemPoolTest extends TestCase
         $keys = ['key1', 'key2'];
         $items = $this->pool->getItems($keys);
 
-        $this->assertEquals($keys, array_keys($items));
+        $this->assertEquals($keys, array_keys(iterator_to_array($items)));
         $this->assertContainsOnlyInstancesOf(Item::class, $items);
     }
 
@@ -254,10 +254,6 @@ class MemoryCacheItemPoolTest extends TestCase
         // "{", "}", "(", ")", "/", "\", "@", ":"
 
         return [
-            [1],
-            [1.1],
-            [true],
-            [null],
             ['{'],
             ['}'],
             ['('],
@@ -266,8 +262,6 @@ class MemoryCacheItemPoolTest extends TestCase
             ['\\'],
             ['@'],
             [':'],
-            [[]],
-            [new \DateTime()],
         ];
     }
 }

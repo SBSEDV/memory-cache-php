@@ -6,30 +6,22 @@ use Psr\Cache\CacheItemInterface;
 
 final class Item implements CacheItemInterface
 {
-    /** @var string */
-    private $key;
-
-    /** @var mixed */
-    private $value;
-
-    /** @var \DateTime|null */
-    private $expiration;
-
-    /** @var bool */
-    private $isHit = false;
+    private mixed $value;
+    private ?\DateTimeInterface $expiration = null;
+    private bool $isHit = false;
 
     /**
      * @param string $key The key for the current cache item.
      */
-    public function __construct(string $key)
-    {
-        $this->key = $key;
+    public function __construct(
+        private string $key
+    ) {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getKey()
+    public function getKey(): string
     {
         return $this->key;
     }
@@ -37,7 +29,7 @@ final class Item implements CacheItemInterface
     /**
      * {@inheritdoc}
      */
-    public function get()
+    public function get(): mixed
     {
         return $this->isHit() ? $this->value : null;
     }
@@ -45,7 +37,7 @@ final class Item implements CacheItemInterface
     /**
      * {@inheritdoc}
      */
-    public function isHit()
+    public function isHit(): bool
     {
         if (!$this->isHit) {
             return false;
@@ -61,10 +53,10 @@ final class Item implements CacheItemInterface
     /**
      * {@inheritdoc}
      */
-    public function set($value)
+    public function set(mixed $value): static
     {
         $this->isHit = true;
-        $this->value = $value;
+        $this->value = (is_object($value) ? clone $value : $value);
 
         return $this;
     }
@@ -72,45 +64,30 @@ final class Item implements CacheItemInterface
     /**
      * {@inheritdoc}
      */
-    public function expiresAt($expiration)
+    public function expiresAt(?\DateTimeInterface $expiration): static
     {
-        if (null === $expiration || $expiration instanceof \DateTimeInterface) {
-            $this->expiration = $expiration;
+        $this->expiration = $expiration;
 
-            return $this;
-        }
-
-        $error = sprintf(
-            'Argument 1 passed to %s::expiresAt() must implement interface DateTimeInterface, %s given',
-            self::class,
-            gettype($expiration)
-        );
-
-        throw new \TypeError($error);
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function expiresAfter($time)
+    public function expiresAfter(int | \DateInterval | null $time): static
     {
         if (is_int($time)) {
             $this->expiration = $this->currentTime()->add(new \DateInterval("PT{$time}S"));
         } elseif ($time instanceof \DateInterval) {
             $this->expiration = $this->currentTime()->add($time);
-        } elseif ($time === null) {
-            $this->expiration = $time;
         } else {
-            $message = 'Argument 1 passed to %s::expiresAfter() must be an '.
-                       'instance of DateInterval or of the type integer, %s given';
-
-            throw new \TypeError(sprintf($message, self::class, gettype($time)));
+            $this->expiration = $time;
         }
 
         return $this;
     }
 
-    private function currentTime()
+    private function currentTime(): \DateTime
     {
         return new \DateTime('now', new \DateTimeZone('UTC'));
     }
