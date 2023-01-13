@@ -2,7 +2,6 @@
 
 namespace SBSEDV\Component\Cache\InMemory;
 
-use ArrayIterator;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
@@ -19,7 +18,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
      */
     public function getItem(string $key): CacheItemInterface
     {
-        /** @var ArrayIterator $items */
+        /** @var \ArrayIterator $items */
         $items = $this->getItems([$key]);
 
         return $items->current();
@@ -30,7 +29,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
      */
     public function getItems(array $keys = []): iterable
     {
-        $items = new ArrayIterator();
+        $items = new \ArrayIterator();
 
         foreach ($keys as $key) {
             $items[$key] = $this->hasItem($key) ? clone $this->items[$key] : new Item($key);
@@ -73,7 +72,7 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
      */
     public function deleteItems(array $keys): bool
     {
-        array_walk($keys, [$this, 'assertKeyIsValid']);
+        \array_walk($keys, [$this, 'assertKeyIsValid']);
 
         foreach ($keys as $key) {
             unset($this->items[$key]);
@@ -125,8 +124,8 @@ final class MemoryCacheItemPool implements CacheItemPoolInterface
     {
         $invalidCharacters = '{}()/\\\\@:';
 
-        if (preg_match("#[$invalidCharacters]#", $key)) {
-            $message = sprintf('The cache item key is not valid: %s', var_export($key, true));
+        if (\preg_match("#[$invalidCharacters]#", $key)) {
+            $message = \sprintf('The cache item key is not valid: %s', \var_export($key, true));
             throw new InvalidArgumentException($message);
         }
     }

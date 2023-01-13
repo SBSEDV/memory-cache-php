@@ -56,7 +56,7 @@ final class Item implements CacheItemInterface
     public function set(mixed $value): static
     {
         $this->isHit = true;
-        $this->value = (is_object($value) ? clone $value : $value);
+        $this->value = (\is_object($value) ? clone $value : $value);
 
         return $this;
     }
@@ -74,9 +74,9 @@ final class Item implements CacheItemInterface
     /**
      * {@inheritdoc}
      */
-    public function expiresAfter(int | \DateInterval | null $time): static
+    public function expiresAfter(int|\DateInterval|null $time): static
     {
-        if (is_int($time)) {
+        if (\is_int($time)) {
             $this->expiration = $this->currentTime()->add(new \DateInterval("PT{$time}S"));
         } elseif ($time instanceof \DateInterval) {
             $this->expiration = $this->currentTime()->add($time);
